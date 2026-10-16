@@ -1,0 +1,650 @@
+/* ─── CSS Reset (replaces @tailwind base) ───────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; tab-size: 4; }
+body { line-height: inherit; }
+h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; background: none; border: none; }
+button { cursor: pointer; }
+ol, ul { list-style: none; }
+img, video, svg, canvas { display: block; max-width: 100%; }
+table { border-collapse: collapse; }
+p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PENDA Agency — Global Design System
+   All component styles are kept here to avoid per-render <style> injections
+   and to allow the browser to deduplicate rules efficiently.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Font variables (Next.js font loader populates these) ─────────────── */
+@layer base {
+  :root {
+    /* Site-wide dark palette (Navigation, Footer, dark scenes) */
+    --bg:         #08090b;
+    --panel:      #101216;
+    --foreground: #f5f5f3;
+    --muted:      #a6a8af;
+    --line:       rgba(255,255,255,0.12);
+    --accent:     #ff773f;
+
+    /* Layout */
+    --wrap:   1240px;
+    --radius: 18px;
+
+    /* Typography — populated by Next.js font loader */
+    --font-sans:    var(--font-dm-sans,    'DM Sans',       sans-serif);
+    --font-display: var(--font-space-grotesk, 'Space Grotesk', sans-serif);
+    --font-manrope: var(--font-manrope,    'Manrope',       sans-serif);
+    --font-mono:    var(--font-dm-mono,    'DM Mono',       monospace);
+
+    /* ── Scene color tokens (light / default) ───────────────────────────
+       Scenes 02A, 03 and 05 read these vars so they respond to the global
+       theme without JS state in each component. Dark scenes (02B, 04,
+       Navigation, Footer) ignore these — they are permanently dark.
+    ─────────────────────────────────────────────────────────────────── */
+
+    /* Scene 02A — Services capsule intro */
+    --s2a-bg:   radial-gradient(ellipse at 52% 36%,rgba(180,158,225,.18),transparent 38%),
+                radial-gradient(ellipse at 80% 78%,rgba(215,190,166,.2),transparent 32%),
+                #f5f1e9;
+    --s2a-ink:    #17171b;
+    --s2a-muted:  #74717b;
+    --s2a-accent: #8d79cb;
+    /* Capsule pill colours (normal = translucent light, invert = dark pill) */
+    --cap-n-bg:   rgba(255,255,255,.34);
+    --cap-n-text: #17171b;
+    --cap-n-dot:  #8d79cb;
+    --cap-i-bg:   #17171b;
+    --cap-i-text: #f5f1e9;
+    --cap-i-dot:  #b7a6f0;
+    --cap-border: rgba(30,27,37,.14);
+
+    /* Scene 03 — Selected Work */
+    --s3-bg:      #f4f0e8;
+    --s3-hdr-bg:  radial-gradient(ellipse at 82% 26%,rgba(151,130,210,.14),transparent 34%),
+                  radial-gradient(ellipse at 8% 84%,rgba(224,197,164,.19),transparent 32%),
+                  #f4f0e8;
+    --s3-surface: #ebe5db;
+    --s3-ink:     #19191d;
+    --s3-muted:   #77736e;
+    --s3-accent:  #7965b5;
+    --s3-line:    rgba(25,25,29,.16);
+
+    /* Scene 05 — Contact CTA */
+    --s5-bg:       #e9e3da;
+    --s5-ink:      #19191d;
+    --s5-muted:    #77736e;
+    --s5-accent:   #7965b5;
+    --s5-cta-bg:   #19191d;
+    --s5-cta-text: #f4f0e8;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Account for the fixed navigation bar on anchor navigation */
+    scroll-padding-top: 82px;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    line-height: 1.55;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a   { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+
+  ::selection { background: var(--accent); color: #08090b; }
+}
+
+/* ─── Dark theme overrides ──────────────────────────────────────────────── */
+/* Applied when Hero.tsx writes data-theme="dark" to <html>.                 */
+[data-theme="dark"] {
+  /* Scene 02A */
+  --s2a-bg:   radial-gradient(ellipse at 52% 36%,rgba(130,108,215,.12),transparent 38%),
+              radial-gradient(ellipse at 80% 78%,rgba(80,60,130,.09),transparent 32%),
+              #11101c;
+  --s2a-ink:    #f3f0ec;
+  --s2a-muted:  #9994a3;
+  --s2a-accent: #b5a7e8;
+  /* Capsule pills flip: normal becomes dark translucent, invert becomes light */
+  --cap-n-bg:   rgba(255,255,255,.07);
+  --cap-n-text: #f3f0ec;
+  --cap-n-dot:  #b7a6f0;
+  --cap-i-bg:   rgba(243,240,236,.17);
+  --cap-i-text: #17171b;
+  --cap-i-dot:  #8d79cb;
+  --cap-border: rgba(243,240,236,.11);
+
+  /* Scene 03 */
+  --s3-bg:      #131117;
+  --s3-hdr-bg:  radial-gradient(ellipse at 82% 26%,rgba(121,100,200,.1),transparent 34%),
+                radial-gradient(ellipse at 8% 84%,rgba(80,60,130,.09),transparent 32%),
+                #131117;
+  --s3-surface: #1d1b26;
+  --s3-ink:     #f4f0e8;
+  --s3-muted:   #9c9399;
+  --s3-accent:  #a497d8;
+  --s3-line:    rgba(244,240,232,.11);
+
+  /* Scene 05 */
+  --s5-bg:       #15131f;
+  --s5-ink:      #f4f0e8;
+  --s5-muted:    #9c9399;
+  --s5-accent:   #a497d8;
+  --s5-cta-bg:   #f4f0e8;
+  --s5-cta-text: #15131f;
+}
+
+/* ─── Theme-switch transition ───────────────────────────────────────────── */
+/* Class added/removed by Hero.tsx for the brief instant of a theme change.  */
+html.theme-switching #services,
+html.theme-switching #work,
+html.theme-switching #contact {
+  transition: background-color 0.45s ease, color 0.3s ease, border-color 0.4s ease !important;
+}
+
+/* ─── Layout utilities ──────────────────────────────────────────────────── */
+@layer utilities {
+  .wrap {
+    width: min(var(--wrap), calc(100% - 9vw));
+    margin-inline: auto;
+  }
+  .font-display { font-family: var(--font-display); }
+  .font-sans    { font-family: var(--font-sans); }
+  .text-accent  { color: var(--accent); }
+  .text-muted   { color: var(--muted); }
+}
+
+/* ─── Custom scrollbar ──────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #f6b44c; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCENE 01 — Hero (penda-*)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Mark entrance — flies in from far right */
+@keyframes penda-markArrive {
+  0%   { opacity:0; transform:translateX(72vw) rotate(125deg) scale(.5); }
+  58%  { opacity:1; transform:translateX(-9px) rotate(-15deg) scale(1.09); }
+  74%  { transform:translateX(4px) rotate(-5deg) scale(.97); }
+  88%  { transform:translateX(-2px) rotate(-10deg) scale(1.01); }
+  100% { transform:translateX(0) rotate(-9deg) scale(1); }
+}
+
+/* Wordmark slides in and expands */
+@keyframes penda-wordmarkPush {
+  0%   { max-width:0; opacity:0; transform:translateX(-10px); margin-left:-2px; }
+  45%  { opacity:1; }
+  100% { max-width:340px; opacity:1; transform:translateX(0); margin-left:17px; }
+}
+
+@keyframes penda-fadeIn { to { opacity:1; } }
+
+/* Hero topbar */
+.penda-topbar {
+  position: absolute;
+  z-index: 10;
+  left: clamp(20px,4vw,64px);
+  right: clamp(20px,4vw,64px);
+  top: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: penda-fadeIn 900ms 400ms both;
+}
+
+/* Theme button hover */
+.penda-topbar button:hover {
+  opacity: .8;
+  transform: translateY(-1px);
+  transition: opacity .2s, transform .2s;
+}
+
+/* "Scroll to discover" hero link */
+.penda-scroll-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: 10px var(--font-mono), monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: inherit;
+  transition: gap .3s cubic-bezier(.2,.75,.2,1);
+}
+.penda-scroll-link:hover { gap: 22px; }
+
+/* Mark animation wrapper */
+.penda-mark-wrap {
+  width: clamp(76px,8vw,112px);
+  flex: 0 0 auto;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  perspective: 700px;
+  position: relative;
+  z-index: 2;
+  animation: penda-markArrive 1.7s cubic-bezier(.22,.75,.18,1) 0.35s both;
+}
+
+/* Wordmark text */
+.penda-wordmark {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(12px,1.55vw,17px);
+  line-height: 1.3;
+  letter-spacing: .23em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 0;
+  opacity: 0;
+  transform: translateX(-10px);
+  margin-left: -2px;
+  animation: penda-wordmarkPush 1.05s cubic-bezier(.22,.75,.18,1) 1.58s forwards;
+}
+
+/* Intro caption */
+.penda-intro-caption {
+  position: absolute;
+  bottom: clamp(40px,8vh,82px);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: penda-fadeIn .8s 1.8s forwards;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCENE 02 — Services (scene2-*)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes scene2-rise {
+  from { opacity:0; transform:translateY(22px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* Capsules start invisible; the scene2-playing class on the wrapper div
+   (added by JS/React when the section enters the viewport) triggers the
+   fall-in animation — exact replica of the reference HTML approach. */
+.scene2-capsule {
+  opacity: 0;
+  /* Resting shadow matches reference HTML exactly */
+  box-shadow: 0 10px 34px rgba(53,40,80,.035);
+  transition: box-shadow .5s ease;
+}
+/* Hover: box-shadow only — transform hover conflicts with animation forwards-fill.
+   Reference HTML also uses box-shadow only on hover. */
+.scene2-capsule:hover {
+  box-shadow: 0 15px 38px rgba(125,99,191,.22);
+}
+/* When the wrapper gains scene2-playing, all capsule children animate */
+.scene2-playing .scene2-capsule {
+  animation: scene2-capsuleFall 1.25s cubic-bezier(.2,.75,.2,1) forwards;
+}
+/* Stagger delays — exact values from reference HTML */
+.scene2-playing .scene2-capsule:nth-child(1) { animation-delay: 0.10s; }
+.scene2-playing .scene2-capsule:nth-child(2) { animation-delay: 0.22s; }
+.scene2-playing .scene2-capsule:nth-child(3) { animation-delay: 0.32s; }
+.scene2-playing .scene2-capsule:nth-child(4) { animation-delay: 0.44s; }
+.scene2-playing .scene2-capsule:nth-child(5) { animation-delay: 0.56s; }
+.scene2-playing .scene2-capsule:nth-child(6) { animation-delay: 0.68s; }
+
+@keyframes scene2-pulseLine {
+  50% { transform:scaleX(.45); opacity:.45; }
+}
+
+/* fall-in keyframe — exact replica of reference HTML.
+   --cx / --cy / --cr are set as inline CSS custom properties on each span.
+   64%: the counter-rotation calc(var(--cr)*-.18) matches the pendulum swing
+        in the reference — each capsule overshoots slightly past center and
+        rotates back toward zero. This is per-capsule because --cr differs. */
+@keyframes scene2-capsuleFall {
+  0%   { opacity:0; transform:translate(var(--cx,0),var(--cy,0)) rotate(var(--cr,0deg)) scale(.78); }
+  64%  { opacity:1; transform:translate(0,10px) rotate(calc(var(--cr,0deg)*-.18)) scale(1.035); }
+  78%  { transform:translate(0,-5px) rotate(2deg) scale(.99); }
+  90%  { transform:translate(0,2px) rotate(-.8deg); }
+  100% { opacity:1; transform:translate(0,0) rotate(0); }
+}
+
+/* Slide active/inactive states — driven by JS adding/removing .active */
+.penda-service-slide .penda-slide-content {
+  opacity: .3;
+  transform: translateY(28px);
+  transition: opacity .75s cubic-bezier(.2,.75,.2,1), transform .9s cubic-bezier(.2,.75,.2,1);
+}
+.penda-service-slide.active .penda-slide-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+.penda-slide-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-position: center;
+  background-size: cover;
+  transform: scale(1.04);
+  transition: transform 1.6s cubic-bezier(.2,.75,.2,1);
+}
+.penda-service-slide.active .penda-slide-bg {
+  transform: scale(1);
+}
+
+/* Slide link hover — border brightens, arrow shifts */
+.penda-slide-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid rgba(255,255,255,.45);
+  border-radius: 999px;
+  padding: 14px 18px;
+  font-size: 11px;
+  letter-spacing: .02em;
+  color: inherit;
+  transition: background .3s, border-color .3s, transform .3s;
+}
+/* Hover matches reference HTML exactly: white background, dark text */
+.penda-slide-link:hover {
+  background: white;
+  color: #12121a;
+  border-color: white;
+  transform: translateY(-2px);
+}
+
+@media (max-width:700px) {
+  .penda-service-slide {
+    padding: 28px 24px 64px !important;
+    align-items: flex-end !important;
+  }
+  .penda-slide-content {
+    padding-bottom: 30px !important;
+    max-width: 90% !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCENE 03 — Work (scene3-*)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes scene3-orbit { to { transform:rotate(360deg); } }
+@keyframes scene3-fadeIn { from { opacity:0; } to { opacity:1; } }
+
+.scene3-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .9s cubic-bezier(.2,.75,.2,1), transform .9s cubic-bezier(.2,.75,.2,1);
+}
+.scene3-reveal.scene3-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Gallery image zoom on hover/focus */
+.scene3-img-btn {
+  overflow: hidden;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+}
+.scene3-img-btn img {
+  transition: transform 1s cubic-bezier(.2,.75,.2,1), filter .6s ease;
+}
+.scene3-img-btn:hover img,
+.scene3-img-btn:focus-within img {
+  transform: scale(1.06);
+  filter: brightness(1.05);
+}
+
+/* Project CTA link — arrow shifts right on hover */
+.scene3-proj-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  border: none;
+  border-bottom: 1px solid;
+  background: none;
+  cursor: pointer;
+  color: var(--s3-ink);
+  font-family: inherit;
+  padding: 0 0 9px;
+  transition: gap .3s cubic-bezier(.2,.75,.2,1), color .2s;
+}
+.scene3-proj-link:hover { gap: 20px; color: var(--s3-accent); }
+
+/* Filter buttons */
+.scene3-filter-btn {
+  border: 1px solid var(--s3-line);
+  border-radius: 999px;
+  padding: 9px 13px;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+  transition: background .25s, color .25s, border-color .25s, transform .2s;
+}
+.scene3-filter-btn:hover:not(.scene3-filter-btn--active) {
+  border-color: var(--s3-accent);
+  color: var(--s3-accent);
+  transform: translateY(-1px);
+}
+.scene3-filter-btn--active {
+  background: var(--s3-ink);
+  color: var(--s3-bg);
+  border-color: var(--s3-ink);
+}
+
+/* Modal close button */
+.scene3-modal-close {
+  border: 1px solid var(--s3-line);
+  border-radius: 50%;
+  width: 38px; height: 38px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 20px;
+  color: var(--s3-ink);
+  display: grid;
+  place-items: center;
+  transition: background .2s, color .2s, transform .2s;
+}
+.scene3-modal-close:hover {
+  background: var(--s3-ink);
+  color: var(--s3-bg);
+  transform: rotate(90deg);
+}
+
+/* Orbit dot pulse */
+@keyframes scene3-dotPulse {
+  0%,100% { box-shadow: 0 0 10px var(--s3-accent); }
+  50%      { box-shadow: 0 0 28px var(--s3-accent), 0 0 8px var(--s3-accent); }
+}
+.scene3-orbit-dot {
+  animation: scene3-dotPulse 2.8s ease-in-out infinite;
+}
+
+@media (max-width:760px) {
+  .scene3-gallery {
+    grid-template-columns: 1fr !important;
+    gap: 37px !important;
+  }
+  .scene3-gallery article { margin-top: 0 !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCENE 04 — Team (team4-*)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.team4-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 800ms ease, transform 800ms cubic-bezier(.2,.7,.2,1);
+}
+.team4-reveal.team4-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Portrait hover / focus interactions */
+.team4-card:hover .team4-portrait-img,
+.team4-card:focus-within .team4-portrait-img {
+  transform: scale(1.045);
+  filter: saturate(1) !important;
+}
+.team4-card:hover .team4-portrait-grad,
+.team4-card:focus-within .team4-portrait-grad {
+  opacity: 1 !important;
+}
+.team4-card:hover .team4-portrait-note,
+.team4-card:focus-within .team4-portrait-note {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+.team4-card:hover .team4-arrow,
+.team4-card:focus-within .team4-arrow {
+  background: #ed7448 !important;
+  border-color: #ed7448 !important;
+  color: #171715 !important;
+  transform: rotate(45deg) !important;
+}
+
+@media (max-width:850px) {
+  .team4-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 36px 18px !important;
+  }
+  .team4-card:nth-child(1) { grid-column: 1 / -1; }
+  .team4-card:nth-child(1) .team4-portrait { aspect-ratio: 1.35 !important; }
+  .team4-card:nth-child(2) .team4-portrait,
+  .team4-card:nth-child(3) .team4-portrait { aspect-ratio: 0.78 !important; }
+  .team4-card:nth-child(2),
+  .team4-card:nth-child(3) { margin-top: 0 !important; }
+}
+
+@media (max-width:480px) {
+  .team4-grid { gap: 32px 14px !important; }
+  .team4-card:nth-child(1) .team4-portrait { aspect-ratio: 0.95 !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCENE 05 — Contact CTA (scene5-*)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.scene5-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .9s cubic-bezier(.2,.75,.2,1), transform .9s cubic-bezier(.2,.75,.2,1);
+}
+.scene5-reveal.scene5-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* CTA button hover — lift + gap expand */
+.scene5-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  padding: 17px 21px;
+  border-radius: 999px;
+  background: var(--s5-cta-bg);
+  color: var(--s5-cta-text);
+  font-size: 12px;
+  font-weight: 700;
+  transition: transform .35s cubic-bezier(.2,.75,.2,1), gap .35s cubic-bezier(.2,.75,.2,1), box-shadow .35s ease;
+  text-decoration: none;
+}
+.scene5-cta-btn:hover {
+  transform: translateY(-4px);
+  gap: 28px;
+  box-shadow: 0 18px 40px rgba(0,0,0,.18);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.penda-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  transition: background 0.5s ease, padding 0.5s ease;
+}
+.penda-nav--scrolled {
+  background: rgba(8,9,11,0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,0.09);
+  padding-block: 1rem;
+}
+.penda-nav--top {
+  background: transparent;
+  padding-block: 1.5rem;
+}
+
+/* Nav link — underline slide-in from left */
+.penda-nav-link {
+  position: relative;
+  color: #d4d4d4;
+  font-size: .8rem;
+  transition: color .25s;
+}
+.penda-nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -3px;
+  width: 0; height: 1px;
+  background: #ff773f;
+  transition: width .3s cubic-bezier(.2,.75,.2,1);
+}
+.penda-nav-link:hover { color: #ff773f; }
+.penda-nav-link:hover::after { width: 100%; }
+
+/* Nav CTA button */
+.penda-nav-cta:hover {
+  border-color: #ff773f !important;
+  transform: translateY(-2px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.footer-link {
+  color: inherit;
+  transition: color 0.2s;
+}
+.footer-link:hover { color: var(--accent); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REDUCED MOTION — collapse all animations/transitions
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Force visible state for all CSS-based reveal classes */
+  .scene3-reveal,
+  .scene5-reveal,
+  .team4-reveal { opacity:1 !important; transform:none !important; }
+  /* Capsules: show immediately in settled state, skip fall-in animation */
+  .scene2-capsule { opacity:1 !important; }
+  .scene2-playing .scene2-capsule { animation: none !important; }
+  .team4-portrait-img { transition: none !important; }
+  .scene3-img-btn img { transition: none !important; }
+  .scene3-orbit-dot  { animation: none !important; }
+  .penda-nav-link::after { transition: none !important; }
+}
