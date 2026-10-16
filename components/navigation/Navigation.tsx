@@ -38,10 +38,12 @@ export default function Navigation() {
   const [navVisible, setNavVisible] = useState(false); // floating bar visible
   const [inHero,     setInHero]     = useState(true);  // still inside hero zone
 
-  const lastScrollY  = useRef(0);
-  const ticking      = useRef(false);
-  const menuCloseRef = useRef<HTMLButtonElement>(null);
-  const menuOpenRef  = useRef<HTMLButtonElement>(null);
+  const lastScrollY   = useRef(0);
+  const ticking       = useRef(false);
+  const menuCloseRef  = useRef<HTMLButtonElement>(null);
+  const menuOpenRef   = useRef<HTMLButtonElement>(null);
+  // How many px scrolled down in a row before we hide
+  const scrollDownAcc = useRef(0);
 
   // ── Scroll handler ─────────────────────────────────────────────────────────
   const handleScroll = useCallback(() => {
@@ -49,22 +51,34 @@ export default function Navigation() {
     ticking.current = true;
 
     requestAnimationFrame(() => {
-      const y    = window.scrollY;
+      const y     = window.scrollY;
       const heroH = window.innerHeight * (HERO_HEIGHT_VH / 100);
       const diff  = y - lastScrollY.current;
 
-      // Are we past the hero zone?
       if (y < heroH) {
+        // Still in hero zone — stay invisible, reset accumulator
         setInHero(true);
         setNavVisible(false);
+        scrollDownAcc.current = 0;
       } else {
         setInHero(false);
-        if (diff > HIDE_THRESHOLD) {
-          // Scrolling down decisively → hide
-          setNavVisible(false);
-        } else if (diff < -SHOW_THRESHOLD) {
-          // Scrolling up → reveal
+
+        if (diff > 0) {
+          // Scrolling down — accumulate
+          scrollDownAcc.current += diff;
+          if (scrollDownAcc.current > HIDE_THRESHOLD) {
+            setNavVisible(false);
+          }
+        } else {
+          // Any scroll up — reset accumulator and show immediately
+          scrollDownAcc.current = 0;
+          if (diff < -SHOW_THRESHOLD) setNavVisible(true);
+        }
+
+        // Entered post-hero zone for the first time → show
+        if (lastScrollY.current < heroH && y >= heroH) {
           setNavVisible(true);
+          scrollDownAcc.current = 0;
         }
       }
 
