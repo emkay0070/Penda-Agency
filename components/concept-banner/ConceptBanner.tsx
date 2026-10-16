@@ -3,14 +3,13 @@
 import { useEffect, useState } from "react";
 
 export default function ConceptBanner() {
-  const [visible, setVisible] = useState(false);
-  const [closing, setClosing] = useState(false);
+  const [visible,   setVisible]   = useState(false);
+  const [closing,   setClosing]   = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
-  /* Show the modal on every page load (no session storage — intentional) */
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 320);
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => setVisible(true), 320);
+    return () => clearTimeout(t);
   }, []);
 
   function handleClose() {
@@ -24,7 +23,7 @@ export default function ConceptBanner() {
 
   return (
     <>
-      {/* ── Full-screen overlay ──────────────────────────────────────────── */}
+      {/* ── Full-screen intro overlay ─────────────────────────────────────── */}
       {visible && (
         <div
           className={`concept-overlay${closing ? " concept-overlay--exit" : ""}`}
@@ -32,37 +31,29 @@ export default function ConceptBanner() {
           aria-modal="true"
           aria-label="Penda Agency — Concept Presentation"
         >
-          {/* Decorative noise grain */}
           <div className="concept-grain" aria-hidden="true" />
-
-          {/* Accent orbs */}
           <div className="concept-orb concept-orb--a" aria-hidden="true" />
           <div className="concept-orb concept-orb--b" aria-hidden="true" />
 
           <div className="concept-card">
-            {/* Eyebrow */}
             <p className="concept-eyebrow">Confidential Concept — 2026</p>
 
-            {/* Greeting */}
             <h1 className="concept-greeting">
               Hello,{" "}
               <span className="concept-greeting__name">Penda&nbsp;Team</span>
               <span className="concept-greeting__wave" aria-hidden="true">👋</span>
             </h1>
 
-            {/* Body */}
             <p className="concept-body">
               This is the <strong>Penda Agency concept</strong> — a reimagined
               digital experience crafted exclusively for you.
             </p>
 
-            {/* Byline */}
             <p className="concept-byline">
               Presented to you by{" "}
               <span className="concept-byline__author">Emkay</span>
             </p>
 
-            {/* CTA */}
             <button
               id="concept-enter-btn"
               className="concept-cta"
@@ -78,15 +69,33 @@ export default function ConceptBanner() {
         </div>
       )}
 
-      {/* ── Persistent mini-ribbon (shown after dismiss) ─────────────────── */}
+      {/* ── Persistent watermark badge (shown after dismiss) ───────────────── */}
       {dismissed && (
-        <div
-          className="concept-ribbon"
-          title="Penda Agency concept by Emkay"
-          aria-label="Concept by Emkay"
-        >
-          <span className="concept-ribbon__dot" aria-hidden="true" />
-          <span className="concept-ribbon__text">Concept by Emkay</span>
+        <div className="concept-watermark" aria-label="This is a concept website by Emkay">
+          <div className="concept-watermark__inner">
+            {/* Pulse dot */}
+            <span className="concept-watermark__dot" aria-hidden="true" />
+
+            {/* Label stack */}
+            <div className="concept-watermark__copy">
+              <span className="concept-watermark__label">✦ Concept Website</span>
+              <span className="concept-watermark__sub">
+                Want this for your brand? <strong>Let's talk.</strong>
+              </span>
+            </div>
+
+            {/* CTA link */}
+            <a
+              href="mailto:emkay@example.com"
+              className="concept-watermark__cta"
+              aria-label="Commission your own website from Emkay"
+            >
+              Hire Emkay
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </a>
+          </div>
         </div>
       )}
     </>

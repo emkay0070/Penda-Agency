@@ -2,86 +2,142 @@
 
 import { useEffect, useState } from 'react';
 
-// ── Footer ────────────────────────────────────────────────────────────────────
-// Uses a client useEffect to set the year (avoids SSR/client mismatch for the
-// date). Footer links use the .footer-link class defined in globals.css.
-// <style> is NOT supported in Next.js App Router — rules moved to globals.css.
+// ── PENDA Footer — Editorial Layout ──────────────────────────────────────────
+// Six-column grid on desktop → stacked on mobile.
+// Avoids invented contact info — social links are left as placeholders.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const NAV_ITEMS = [
+const SERVICES = [
+  'Live Event Production',
+  'Audiovisual Experiences',
+  'Broadcast & Streaming',
+  'Visual Storytelling',
+  'Stage & Set Design',
+  'Creative Direction',
+];
+
+const NAV = [
   { label: 'Home',      href: '#home' },
   { label: 'Services',  href: '#services' },
-  { label: 'Portfolio', href: '#work' },
+  { label: 'Work',      href: '#work' },
   { label: 'Team',      href: '#team' },
   { label: 'Contact',   href: '#contact' },
-] as const;
+];
+
+const SOCIALS = [
+  { label: 'Instagram', href: '#' },
+  { label: 'LinkedIn',  href: '#' },
+  { label: 'YouTube',   href: '#' },
+  { label: 'Behance',   href: '#' },
+];
 
 export default function Footer() {
-  // Initialise with a dash so SSR and first client render agree (avoids mismatch)
   const [year, setYear] = useState('—');
   useEffect(() => setYear(String(new Date().getFullYear())), []);
 
   return (
-    <footer style={{ padding: '34px 0 22px', background: '#07080a' }}>
-      <div className="wrap">
-        {/* Top row */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            gap: '40px',
-            alignItems: 'flex-start',
-            paddingBottom: '36px',
-            flexWrap: 'wrap',
-          }}
-        >
-          {/* Brand */}
-          <div>
-            <a href="#home" style={{ display: 'inline-block', textDecoration: 'none' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.55rem', lineHeight: 0.85, letterSpacing: '-0.08em', color: '#f5f5f3' }}>
-                Penda
-                <small style={{ display: 'block', fontFamily: 'var(--font-sans)', letterSpacing: '0.45em', color: 'rgba(245,245,243,0.7)', marginTop: '7px', marginLeft: '2px', fontSize: '0.48rem', fontWeight: 700 }}>
-                  AGENCY
-                </small>
-              </span>
-            </a>
-            <p style={{ color: 'var(--muted)', maxWidth: '260px', fontSize: '0.83rem', marginTop: '20px', lineHeight: 1.6 }}>
-              Creating experiences that bring people together and make moments matter.
-            </p>
-          </div>
+    <footer className="penda-footer">
 
-          {/* Nav links */}
-          <nav aria-label="Footer navigation" style={{ display: 'flex', gap: 'clamp(20px,3vw,40px)', flexWrap: 'wrap', fontSize: '0.8rem', color: '#d4d4d6' }}>
-            {NAV_ITEMS.map((item) => (
-              <a key={item.label} href={item.href} className="footer-link">
-                {item.label}
-              </a>
-            ))}
-          </nav>
+      {/* ── CTA bar ─────────────────────────────────────────────────────── */}
+      <div className="penda-footer__cta-bar">
+        <div className="wrap penda-footer__cta-inner">
+          <div className="penda-footer__cta-copy">
+            <p className="penda-footer__cta-eyebrow">Ready to create?</p>
+            <h2 className="penda-footer__cta-headline">
+              Let's make something<br />
+              <span>unforgettable.</span>
+            </h2>
+          </div>
+          <a href="#contact" className="penda-footer__cta-btn">
+            Start a project
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M3 15L15 3M15 3H6M15 3v9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      {/* ── Main grid ───────────────────────────────────────────────────── */}
+      <div className="wrap penda-footer__grid">
+
+        {/* Brand column */}
+        <div className="penda-footer__brand">
+          <a href="#home" className="penda-footer__logo" aria-label="Penda Agency home">
+            <span className="penda-footer__logo-mark" aria-hidden="true">P.</span>
+            <span className="penda-footer__logo-word">
+              <strong>PENDA</strong>
+              <small>AGENCY</small>
+            </span>
+          </a>
+          <p className="penda-footer__tagline">
+            Independent production partner for live events, audiovisual, and
+            visual storytelling. Based in Kampala, Uganda.
+          </p>
+          <p className="penda-footer__location">
+            <span aria-hidden="true">📍</span> Kampala, Uganda · Est. 2022
+          </p>
         </div>
 
-        {/* Bottom row */}
-        <div
-          style={{
-            borderTop: '1px solid var(--line)',
-            paddingTop: '20px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            gap: '20px',
-            color: '#8c8d93',
-            fontSize: '0.72rem',
-            flexWrap: 'wrap',
-          }}
-        >
+        {/* Services column */}
+        <div className="penda-footer__col">
+          <h3 className="penda-footer__col-title">Services</h3>
+          <ul className="penda-footer__list">
+            {SERVICES.map(s => (
+              <li key={s}>
+                <a href="#services" className="penda-footer__link">{s}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Navigation column */}
+        <div className="penda-footer__col">
+          <h3 className="penda-footer__col-title">Navigate</h3>
+          <ul className="penda-footer__list">
+            {NAV.map(item => (
+              <li key={item.label}>
+                <a href={item.href} className="penda-footer__link">{item.label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Social + awards column */}
+        <div className="penda-footer__col">
+          <h3 className="penda-footer__col-title">Follow</h3>
+          <ul className="penda-footer__list">
+            {SOCIALS.map(s => (
+              <li key={s.label}>
+                <a
+                  href={s.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="penda-footer__link penda-footer__link--social"
+                >
+                  {s.label}
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M1.5 8.5L8.5 1.5M8.5 1.5H3.5M8.5 1.5V6.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+      </div>
+
+      {/* ── Divider + bottom bar ─────────────────────────────────────────── */}
+      <div className="wrap penda-footer__bottom">
+        <div className="penda-footer__bottom-line" />
+        <div className="penda-footer__bottom-row">
           <span>© {year} Penda Agency. All rights reserved.</span>
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="footer-link">Instagram</a>
-            <a href="https://linkedin.com"  target="_blank" rel="noreferrer" className="footer-link">LinkedIn</a>
-            <a href="https://youtube.com"   target="_blank" rel="noreferrer" className="footer-link">YouTube</a>
-          </div>
+          <span className="penda-footer__bottom-mid">
+            Events · Audiovisual · Creative
+          </span>
           <span>Made for moments that matter.</span>
         </div>
       </div>
+
     </footer>
   );
 }
