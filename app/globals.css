@@ -579,7 +579,6 @@ html.theme-switching #contact {
   position: fixed;
   top: 16px;
   left: 50%;
-  transform: translateX(-50%);
   z-index: 80;
   width: min(900px, calc(100% - 40px));
   display: flex;

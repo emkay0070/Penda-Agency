@@ -193,6 +193,7 @@ export default function Navigation() {
             role="banner"
             aria-label="Site navigation"
             className="pnav-bar"
+            style={{ x: '-50%' }}
             variants={prefersReduced ? {} : barVariants}
             initial="hidden"
             animate="visible"
