@@ -1,188 +1,345 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
-// ── Sticky Navigation ────────────────────────────────────────────────────────
-// Rendered as a fixed header. Background fades in once the user scrolls past
-// 60px. Mobile menu is a simple dropdown. No Tailwind utility classes are used
-// in the HTML so the component renders identically on server and client without
-// a 'mounted' flash.
-// ────────────────────────────────────────────────────────────────────────────
+// ── PENDA Cinematic Navigation ────────────────────────────────────────────────
+//
+// Three-state system:
+//   "hero"     → invisible during the cinematic opening (z-index behind hero topbar)
+//   "floating" → compact floating glass bar during browsing
+//   "top"      → gracefully faded at the very top of the page (post-hero)
+//
+// Scroll behavior:
+//   – Scrolling DOWN past threshold → hide (slide up + fade)
+//   – Scrolling UP any amount      → show floating bar
+//   – Back at top (< HERO_HEIGHT)  → return to hero state
+//
+// Full-screen menu: Framer Motion staggered reveal, focus trap, Escape key.
+// ─────────────────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
-  { label: 'Home',      href: '#home' },
-  { label: 'Services',  href: '#services' },
-  { label: 'Portfolio', href: '#work' },
-  { label: 'Team',      href: '#team' },
-  { label: 'Contact',   href: '#contact' },
+  { label: 'Services',  href: '#services',  index: '02' },
+  { label: 'Work',      href: '#work',      index: '03' },
+  { label: 'Team',      href: '#team',      index: '04' },
+  { label: 'Contact',   href: '#contact',   index: '05' },
 ] as const;
 
-export default function Navigation() {
-  const [scrolled,    setScrolled]    = useState(false);
-  const [mobileOpen,  setMobileOpen]  = useState(false);
+// Hero intro runs for ~3.3 s then reveals the film scene. We stay invisible
+// until the user scrolls (or the intro finishes — we detect via scroll only,
+// keeping this component decoupled from Hero internals).
+const HERO_HEIGHT_VH = 80; // treat first 80% of viewport as "still in hero"
+const HIDE_THRESHOLD  = 80; // px scrolled down before hiding on scroll-down
+const SHOW_THRESHOLD  = 6;  // px scrolled up before re-showing
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
-    // Set initial state immediately
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+export default function Navigation() {
+  // ── State ──────────────────────────────────────────────────────────────────
+  const [menuOpen,   setMenuOpen]   = useState(false);
+  const [navVisible, setNavVisible] = useState(false); // floating bar visible
+  const [inHero,     setInHero]     = useState(true);  // still inside hero zone
+
+  const lastScrollY  = useRef(0);
+  const ticking      = useRef(false);
+  const menuCloseRef = useRef<HTMLButtonElement>(null);
+  const menuOpenRef  = useRef<HTMLButtonElement>(null);
+
+  // ── Scroll handler ─────────────────────────────────────────────────────────
+  const handleScroll = useCallback(() => {
+    if (ticking.current) return;
+    ticking.current = true;
+
+    requestAnimationFrame(() => {
+      const y    = window.scrollY;
+      const heroH = window.innerHeight * (HERO_HEIGHT_VH / 100);
+      const diff  = y - lastScrollY.current;
+
+      // Are we past the hero zone?
+      if (y < heroH) {
+        setInHero(true);
+        setNavVisible(false);
+      } else {
+        setInHero(false);
+        if (diff > HIDE_THRESHOLD) {
+          // Scrolling down decisively → hide
+          setNavVisible(false);
+        } else if (diff < -SHOW_THRESHOLD) {
+          // Scrolling up → reveal
+          setNavVisible(true);
+        }
+      }
+
+      lastScrollY.current = y;
+      ticking.current = false;
+    });
   }, []);
 
-  const closeMobile = () => setMobileOpen(false);
+  useEffect(() => {
+    lastScrollY.current = window.scrollY;
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
-  const navStyle: React.CSSProperties = {
-    position: 'fixed',
-    top: 0, left: 0, right: 0,
-    zIndex: 50,
-    transition: 'background 0.5s ease, padding 0.5s ease, border-color 0.5s ease',
-    paddingBlock: scrolled ? '1rem' : '1.5rem',
-    paddingInline: 'clamp(20px,4vw,64px)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '24px',
-    background: scrolled ? 'rgba(8,9,11,0.92)' : 'transparent',
-    backdropFilter: scrolled ? 'blur(14px)' : 'none',
-    WebkitBackdropFilter: scrolled ? 'blur(14px)' : 'none',
-    borderBottom: scrolled ? '1px solid rgba(255,255,255,0.09)' : '1px solid transparent',
+  // ── Menu open/close ────────────────────────────────────────────────────────
+  const openMenu = () => {
+    setMenuOpen(true);
+    document.body.style.overflow = 'hidden';
   };
 
-  const linkStyle: React.CSSProperties = {
-    color: '#d4d4d4',
-    fontSize: '0.8rem',
-    transition: 'color 0.2s',
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+    document.body.style.overflow = '';
+    // Return focus to the trigger
+    requestAnimationFrame(() => menuOpenRef.current?.focus());
+  }, []);
+
+  // Escape key
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeMenu();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [menuOpen, closeMenu]);
+
+  // Auto-focus close button when menu opens
+  useEffect(() => {
+    if (menuOpen) {
+      requestAnimationFrame(() => menuCloseRef.current?.focus());
+    }
+  }, [menuOpen]);
+
+  // ── Smooth scroll + close menu ─────────────────────────────────────────────
+  const navigate = (href: string) => {
+    closeMenu();
+    // Small delay so exit animation has time to start before scroll
+    setTimeout(() => {
+      const el = document.querySelector(href);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 120);
   };
+
+  // ── Reduced motion preference ──────────────────────────────────────────────
+  const prefersReduced =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── Framer Motion variants ─────────────────────────────────────────────────
+  const barVariants = {
+    hidden:  { y: -16, opacity: 0 },
+    visible: { y: 0,   opacity: 1 },
+  };
+
+  const overlayVariants = {
+    closed: { opacity: 0 },
+    open:   { opacity: 1 },
+  };
+
+  const menuItemVariants = {
+    closed: { y: 32,  opacity: 0 },
+    open:   { y: 0,   opacity: 1 },
+  };
+
+  const menuLinkVariants = {
+    closed: { x: -24, opacity: 0, clipPath: 'inset(0 100% 0 0)' },
+    open:   { x: 0,   opacity: 1, clipPath: 'inset(0 0% 0 0)'   },
+  };
+
+  // ── Logo mark (shared) ─────────────────────────────────────────────────────
+  const LogoMark = ({ size = 28 }: { size?: number }) => (
+    <a
+      href="#home"
+      onClick={e => { e.preventDefault(); navigate('#home'); }}
+      aria-label="Penda Agency — back to top"
+      className="pnav-logo"
+    >
+      <span
+        className="pnav-logo__mark"
+        style={{ width: size, height: size, fontSize: size * 0.54 }}
+        aria-hidden="true"
+      >P.</span>
+      <span className="pnav-logo__word">
+        <strong>PENDA</strong>
+        <small>AGENCY</small>
+      </span>
+    </a>
+  );
 
   return (
     <>
-      <header style={navStyle} aria-label="Main site navigation">
-        {/* Brand */}
-        <a href="#home" aria-label="Penda Agency home" style={{ flexShrink: 0, textDecoration: 'none' }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.55rem', lineHeight: 0.85, letterSpacing: '-0.08em', color: '#f5f5f3' }}>
-            Penda
-            <small style={{ display: 'block', fontFamily: 'var(--font-sans)', letterSpacing: '0.45em', color: 'rgba(245,245,243,0.7)', marginTop: '7px', marginLeft: '2px', fontSize: '0.48rem', fontWeight: 700 }}>
-              AGENCY
-            </small>
-          </span>
-        </a>
-
-        {/* Desktop nav */}
-        <nav style={{ display: 'flex', gap: 'clamp(18px,3vw,40px)', alignItems: 'center' }} aria-label="Primary navigation" className="penda-nav-desktop">
-          {NAV_ITEMS.map((item) => (
-            <a key={item.label} href={item.href} style={linkStyle} className="penda-nav-link">
-              {item.label}
-            </a>
-          ))}
-        </nav>
-
-        {/* CTA + hamburger */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <a
-            href="#contact"
-            className="penda-nav-cta"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '5px',
-              border: '1px solid rgba(255,255,255,0.32)',
-              background: 'rgba(0,0,0,0.15)',
-              color: '#f5f5f3',
-              borderRadius: '999px',
-              padding: '11px 20px',
-              fontSize: '0.86rem',
-              fontWeight: 700,
-              transition: 'border-color 0.25s, background 0.25s, transform 0.25s',
-              textDecoration: 'none',
-            }}
+      {/* ══════════════════════════════════════════════════════════════════════
+          FLOATING NAV BAR
+          Appears when user scrolls up past hero zone.
+          Hidden during hero cinematic; never shown while menu is open.
+      ══════════════════════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {!inHero && navVisible && !menuOpen && (
+          <motion.header
+            key="floating-nav"
+            role="banner"
+            aria-label="Site navigation"
+            className="pnav-bar"
+            variants={prefersReduced ? {} : barVariants}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            transition={{ duration: 0.38, ease: [0.22, 0.75, 0.18, 1] }}
           >
-            Get a quote <span style={{ fontSize: '1.15rem', lineHeight: 1 }}>↗</span>
-          </a>
+            <LogoMark size={26} />
 
-          <button
-            className="penda-nav-hamburger"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
-            aria-expanded={mobileOpen}
-            style={{
-              display: 'none', // shown via CSS at small breakpoint
-              placeItems: 'center',
-              width: '44px', height: '44px',
-              border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: '50%',
-              background: 'transparent',
-              color: '#f5f5f3',
-              cursor: 'pointer',
-              fontSize: '18px',
-              transition: 'border-color 0.2s',
-            }}
+            {/* Desktop links */}
+            <nav className="pnav-bar__links" aria-label="Primary navigation">
+              {NAV_ITEMS.map(item => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  onClick={e => { e.preventDefault(); navigate(item.href); }}
+                  className="pnav-bar__link"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+
+            {/* Right controls */}
+            <div className="pnav-bar__right">
+              <a
+                href="#contact"
+                onClick={e => { e.preventDefault(); navigate('#contact'); }}
+                className="pnav-bar__cta"
+                aria-label="Get a quote"
+              >
+                Get a quote <span aria-hidden="true">↗</span>
+              </a>
+
+              <button
+                ref={menuOpenRef}
+                onClick={openMenu}
+                aria-label="Open full navigation menu"
+                aria-expanded={menuOpen}
+                aria-haspopup="dialog"
+                className="pnav-bar__menu-btn"
+              >
+                <span className="pnav-burger" aria-hidden="true">
+                  <span /><span /><span />
+                </span>
+              </button>
+            </div>
+          </motion.header>
+        )}
+      </AnimatePresence>
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          FULL-SCREEN MENU OVERLAY
+      ══════════════════════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            key="menu-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Full navigation menu"
+            className="pnav-menu"
+            variants={prefersReduced ? {} : overlayVariants}
+            initial="closed"
+            animate="open"
+            exit="closed"
+            transition={{ duration: 0.48, ease: [0.22, 0.75, 0.18, 1] }}
           >
-            {mobileOpen ? '✕' : '☰'}
-          </button>
-        </div>
-      </header>
+            {/* Noise grain */}
+            <div className="pnav-menu__grain" aria-hidden="true" />
 
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '75px', left: '19px', right: '19px',
-            zIndex: 40,
-            borderRadius: '16px',
-            border: '1px solid rgba(255,255,255,0.12)',
-            background: 'rgba(10,11,14,0.97)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          {NAV_ITEMS.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              onClick={closeMobile}
-              style={{
-                padding: '12px 0',
-                borderBottom: '1px solid rgba(255,255,255,0.12)',
-                color: '#d4d4d4',
-                fontSize: '0.875rem',
-                transition: 'color 0.2s',
-              }}
-              className="penda-nav-link"
+            {/* Accent orb */}
+            <div className="pnav-menu__orb" aria-hidden="true" />
+
+            {/* Header row */}
+            <div className="pnav-menu__header">
+              <LogoMark size={30} />
+              <button
+                ref={menuCloseRef}
+                onClick={closeMenu}
+                aria-label="Close navigation menu"
+                className="pnav-menu__close"
+              >
+                <span className="pnav-menu__close-x" aria-hidden="true">
+                  <span /><span />
+                </span>
+              </button>
+            </div>
+
+            {/* Nav links */}
+            <nav
+              className="pnav-menu__nav"
+              aria-label="Full site navigation"
             >
-              {item.label}
-            </a>
-          ))}
-          <a
-            href="#contact"
-            onClick={closeMobile}
-            style={{
-              marginTop: '16px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
-              border: '1px solid rgba(255,255,255,0.32)',
-              background: 'rgba(0,0,0,0.15)',
-              color: '#f5f5f3',
-              borderRadius: '999px',
-              padding: '12px 20px',
-              fontSize: '0.875rem',
-              fontWeight: 700,
-              transition: 'border-color 0.2s',
-            }}
-          >
-            Get a quote <span>↗</span>
-          </a>
-        </div>
-      )}
+              {NAV_ITEMS.map((item, i) => (
+                <motion.div
+                  key={item.label}
+                  className="pnav-menu__item"
+                  variants={prefersReduced ? {} : menuItemVariants}
+                  initial="closed"
+                  animate="open"
+                  exit="closed"
+                  transition={{
+                    duration: 0.55,
+                    delay: 0.08 + i * 0.09,
+                    ease: [0.22, 0.75, 0.18, 1],
+                  }}
+                >
+                  <span className="pnav-menu__item-index">
+                    {item.index}
+                  </span>
+                  <motion.a
+                    href={item.href}
+                    onClick={e => { e.preventDefault(); navigate(item.href); }}
+                    className="pnav-menu__link"
+                    variants={prefersReduced ? {} : menuLinkVariants}
+                    whileHover={prefersReduced ? {} : { x: 12 }}
+                    transition={{ duration: 0.3, ease: [0.22, 0.75, 0.18, 1] }}
+                  >
+                    {item.label}
+                  </motion.a>
+                </motion.div>
+              ))}
+            </nav>
 
-      {/* Nav responsive helpers — show/hide hamburger */}
-      <style>{`
-        @media (max-width:1023px) {
-          .penda-nav-desktop   { display: none !important; }
-          .penda-nav-hamburger { display: grid !important; }
-          .penda-nav-cta       { display: none !important; }
-        }
-      `}</style>
+            {/* Footer row */}
+            <motion.div
+              className="pnav-menu__footer"
+              variants={prefersReduced ? {} : menuItemVariants}
+              initial="closed"
+              animate="open"
+              exit="closed"
+              transition={{ duration: 0.5, delay: 0.46, ease: [0.22, 0.75, 0.18, 1] }}
+            >
+              <p className="pnav-menu__tagline">
+                Independent production partner<br />
+                <span>Est. 2022 · Kampala, Uganda</span>
+              </p>
+              <a
+                href="#contact"
+                onClick={e => { e.preventDefault(); navigate('#contact'); }}
+                className="pnav-menu__contact-cta"
+              >
+                Start a project <span aria-hidden="true">→</span>
+              </a>
+            </motion.div>
+
+            {/* Scene label */}
+            <motion.div
+              className="pnav-menu__scene-label"
+              aria-hidden="true"
+              variants={prefersReduced ? {} : { closed: { opacity: 0 }, open: { opacity: 1 } }}
+              initial="closed"
+              animate="open"
+              exit="closed"
+              transition={{ duration: 0.6, delay: 0.55 }}
+            >
+              Navigation
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

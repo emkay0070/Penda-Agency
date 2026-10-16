@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Space_Grotesk, Manrope, DM_Mono } from "next/font/google";
 import "./globals.css";
+import ConceptBanner from "@/components/concept-banner/ConceptBanner";
 
 // Body — DM Sans: clean, modern, humanist (variable font — no weight needed)
 const dmSans = DM_Sans({
@@ -53,6 +54,7 @@ export default function RootLayout({
       <body
         className={`${dmSans.variable} ${spaceGrotesk.variable} ${manrope.variable} ${dmMono.variable} antialiased`}
       >
+        <ConceptBanner />
         {children}
       </body>
     </html>
