@@ -38,27 +38,8 @@ export default function Footer() {
   return (
     <footer className="penda-footer">
 
-      {/* ── CTA bar ─────────────────────────────────────────────────────── */}
-      <div className="penda-footer__cta-bar">
-        <div className="wrap penda-footer__cta-inner">
-          <div className="penda-footer__cta-copy">
-            <p className="penda-footer__cta-eyebrow">Ready to create?</p>
-            <h2 className="penda-footer__cta-headline">
-              Let's make something<br />
-              <span>unforgettable.</span>
-            </h2>
-          </div>
-          <a href="#contact" className="penda-footer__cta-btn">
-            Start a project
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-              <path d="M3 15L15 3M15 3H6M15 3v9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </a>
-        </div>
-      </div>
-
       {/* ── Main grid ───────────────────────────────────────────────────── */}
-      <div className="wrap penda-footer__grid">
+      <div className="penda-footer__grid">
 
         {/* Brand column */}
         <div className="penda-footer__brand">
@@ -127,7 +108,7 @@ export default function Footer() {
       </div>
 
       {/* ── Divider + bottom bar ─────────────────────────────────────────── */}
-      <div className="wrap penda-footer__bottom">
+      <div className="penda-footer__bottom">
         <div className="penda-footer__bottom-line" />
         <div className="penda-footer__bottom-row">
           <span>© {year} Penda Agency. All rights reserved.</span>

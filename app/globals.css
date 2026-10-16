@@ -1269,82 +1269,14 @@ html.theme-switching #contact {
   border-top: 1px solid rgba(255,255,255,.07);
 }
 
-/* ── CTA bar ─────────────────────────────────────────────────────────── */
-.penda-footer__cta-bar {
-  background: linear-gradient(135deg, #0d0d1a 0%, #111128 50%, #0a0a14 100%);
-  border-bottom: 1px solid rgba(255,255,255,.07);
-  padding: clamp(52px, 8vh, 96px) 0;
-  position: relative;
-  overflow: hidden;
-}
-.penda-footer__cta-bar::before {
-  content: '';
-  position: absolute;
-  width: 500px; height: 500px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(120,90,220,.15) 0%, transparent 70%);
-  top: -150px; right: -80px;
-  pointer-events: none;
-  filter: blur(50px);
-}
-.penda-footer__cta-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 32px;
-  flex-wrap: wrap;
-}
-.penda-footer__cta-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 12px;
-}
-.penda-footer__cta-headline {
-  font-family: var(--font-display);
-  font-size: clamp(32px, 5vw, 64px);
-  font-weight: 600;
-  line-height: 1.08;
-  letter-spacing: -.04em;
-  color: #f5f4f0;
-}
-.penda-footer__cta-headline span {
-  background: linear-gradient(120deg, #c4b8f5 0%, #ff773f 80%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.penda-footer__cta-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 18px 32px;
-  border-radius: 999px;
-  background: #f5f4f0;
-  color: #08090b;
-  font-family: var(--font-display);
-  font-size: .9rem;
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-  letter-spacing: .01em;
-  transition: transform .35s cubic-bezier(.2,.75,.2,1), box-shadow .35s ease, gap .35s cubic-bezier(.2,.75,.2,1);
-  box-shadow: 0 8px 28px rgba(255,255,255,.12);
-  flex-shrink: 0;
-}
-.penda-footer__cta-btn:hover {
-  transform: translateY(-4px);
-  gap: 18px;
-  box-shadow: 0 16px 40px rgba(255,255,255,.18);
-}
-
 /* ── Main grid ─────────────────────────────────────────────────────────── */
+/* Shares the site-wide gutter — clamp(20px, 8.3vw, 132px) — used by all
+   other scenes so the footer edges line up with the rest of the page. */
 .penda-footer__grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: clamp(32px, 4vw, 64px);
+  padding-inline: clamp(20px, 8.3vw, 132px);
   padding-top: clamp(52px, 7vh, 88px);
   padding-bottom: clamp(40px, 5vh, 64px);
 }
@@ -1444,7 +1376,10 @@ html.theme-switching #contact {
 .penda-footer__link--social:hover svg { opacity: 1; }
 
 /* ── Bottom bar ────────────────────────────────────────────────────────── */
-.penda-footer__bottom { padding-bottom: clamp(24px, 3vh, 40px); }
+.penda-footer__bottom {
+  padding-inline: clamp(20px, 8.3vw, 132px);
+  padding-bottom: clamp(24px, 3vh, 40px);
+}
 .penda-footer__bottom-line {
   height: 1px;
   background: rgba(255,255,255,.07);
@@ -1482,5 +1417,4 @@ html.theme-switching #contact {
   }
   .penda-footer__bottom-row { flex-direction: column; text-align: center; }
   .penda-footer__bottom-mid { display: none; }
-  .penda-footer__cta-inner { flex-direction: column; align-items: flex-start; }
 }

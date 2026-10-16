@@ -4,7 +4,6 @@ import Scene2Services from '@/components/services/Scene2Services';
 import Scene3Work  from '@/components/work/Scene3Work';
 import Team        from '@/components/team/Team';
 import ContactCta  from '@/components/contact-cta/ContactCta';
-import Footer      from '@/components/footer/Footer';
 
 export default function Home() {
   return (
@@ -33,9 +32,6 @@ export default function Home() {
       {/* ─── SCENE 05 — The Closing Invitation ──────────────────────────── */}
       {/* Headline: "Let's make something happen."                             */}
       <ContactCta />
-
-      {/* Footer */}
-      <Footer />
     </main>
   );
 }

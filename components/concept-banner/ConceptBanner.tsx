@@ -84,13 +84,15 @@ export default function ConceptBanner() {
               </span>
             </div>
 
-            {/* CTA link */}
+            {/* CTA link — opens a WhatsApp chat with Emkay */}
             <a
-              href="mailto:emkay@example.com"
+              href="https://wa.me/256780698341?text=Hello%20Emkay%2C%20I%27d%20like%20to%20start%20a%20project."
+              target="_blank"
+              rel="noreferrer"
               className="concept-watermark__cta"
-              aria-label="Commission your own website from Emkay"
+              aria-label="Start your project with Emkay on WhatsApp"
             >
-              Hire Emkay
+              Start your project
               <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                 <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
